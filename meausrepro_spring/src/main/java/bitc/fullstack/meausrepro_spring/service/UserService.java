@@ -3,6 +3,7 @@ package bitc.fullstack.meausrepro_spring.service;
 import bitc.fullstack.meausrepro_spring.model.MeausreProUser;
 import bitc.fullstack.meausrepro_spring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,7 +22,7 @@ public class UserService {
     }
 
     // 회원가입
-    public MeausreProUser registerUser(UserRegistrationDTO registrationDTO) {
+    public MeausreProUser registerUser(bitc.fullstack.meausrepro_spring.dto.UserRegistrationDTO registrationDTO) {
         MeausreProUser newUser = new MeausreProUser();
         newUser.setId(registrationDTO.getId());
         newUser.setPass(passwordEncoder.encode(registrationDTO.getPass())); // 패스워드 암호화

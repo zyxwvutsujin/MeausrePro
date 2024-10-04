@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class GeometryDto {
+public class GeometryDTO {
     private Long id;
     private String geometryData;
 }
