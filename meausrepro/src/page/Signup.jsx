@@ -17,14 +17,15 @@ function Register() {
 
     const registerEvent = async (e) => {
         e.preventDefault();
+        setError('');  // Clear any previous errors
 
         try {
             const response = await axios.post(`http://localhost:8080/meausrepro/user/register`, {
                 id: id,
                 pass: pass,
                 name: name,
-                tel: tel,
-                role: ''  // 권한 설정은 비워둡니다.
+                tel: tel
+                // role 필드가 없습니다.
             });
 
             if (response.data) {
@@ -34,6 +35,14 @@ function Register() {
         } catch (err) {
             setError(err.response.data.message || '회원가입 실패');
         }
+    };
+
+    const goToLogin = () => {
+        navigate('/login');  // 로그인 페이지로 이동
+    };
+
+    const goToRegister = () => {
+        navigate('/register');  // 회원가입 페이지로 이동
     };
 
     return (
@@ -73,10 +82,12 @@ function Register() {
                 <button type={'submit'} className={'btn btn-primary'}>회원가입</button>
             </form>
             {error && <p style={{color: 'red'}}>{error}</p>}
+            <div className={'d-grid gap-2'}>
+                <button onClick={goToLogin} className={'btn btn-secondary'}>로그인 페이지로 가기</button>
+                <button onClick={goToRegister} className={'btn btn-secondary'}>회원가입 페이지로 가기</button>
+            </div>
         </div>
     );
-
-
 }
 
 export default Register;
