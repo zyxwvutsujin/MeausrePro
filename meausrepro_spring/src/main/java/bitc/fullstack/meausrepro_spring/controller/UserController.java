@@ -20,7 +20,8 @@ public class UserController {
         Optional<MeausreProUser> user = userService.findById(loginUser.getId());
 
         if (user.isPresent()) {
-            if (user.get().getPass().equals(loginUser.getPass())) {
+            // 암호화된 비밀번호와 입력된 비밀번호 비교
+            if (userService.checkPassword(loginUser.getPass(), user.get().getPass())) {
                 return user.get();
             }
             else {
