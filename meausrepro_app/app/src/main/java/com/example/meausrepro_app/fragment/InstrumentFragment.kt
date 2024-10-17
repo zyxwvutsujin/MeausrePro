@@ -25,7 +25,6 @@ import java.util.Date
 import java.util.Locale
 
 class InstrumentFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     lateinit var binding: FragmentInstrumentBinding
 
     private var instrIdx: Int? = null
@@ -45,8 +44,11 @@ class InstrumentFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            instrIdx = it.getInt("instrIdx")
+            instrIdx = it.getInt("instrIdx") // QRFragment에서 전달된 인덱스 값
             id = it.getString("id")
+
+            // 인덱스 값이 있을 경우 자동으로 계측기 정보 조회
+            instrIdx?.let { idx -> getInstrInfo(idx) }
         }
     }
 
@@ -62,10 +64,18 @@ class InstrumentFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 계측기 정보 가져오기
-        getInstrInfo(instrIdx!!)
+        // QR 코드 스캔 후 인덱스 값을 받아오기
+        val qrResult = arguments?.getString("qrResult") // QR 코드 결과를 가져옴
+        qrResult?.let {
+            val instrIdx = it.toIntOrNull() // QR 데이터에서 인덱스 추출
+            if (instrIdx != null) {
+                getInstrInfo(instrIdx) // 인덱스에 해당하는 계측기 정보 가져오기
+            } else {
+                showCustomDialog("유효하지 않은 QR 코드입니다.", "error")
+            }
+        }
 
-        // 현재 날짜 가져 오기
+        // 현재 날짜 가져오기
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
         binding.edtCreateDate.setText(currentDate)
 
@@ -140,25 +150,23 @@ class InstrumentFragment : Fragment() {
 
     // 계측기 정보 가져오기
     private fun getInstrInfo(instrIdx: Int) {
-        MeausreProClient.retrofit.getInstrumentInfo(instrIdx).enqueue(object:retrofit2.Callback<MeausreProInstrument>{
-            override fun onResponse(
-                call: Call<MeausreProInstrument>,
-                response: Response<MeausreProInstrument>
-            ) {
-                if (response.isSuccessful && response.body() != null) {
-                    instrument = response.body()!!
-                    binding.insName.text = "${instrumentTypeMap[instrument.insType.toString()]} ${instrument.insNum}"
-
-                    instrTypeForm(instrument.insType.toString())
+        MeausreProClient.retrofit.getInstrumentInfo(instrIdx).enqueue(object: retrofit2.Callback<MeausreProInstrument> {
+            override fun onResponse(call: Call<MeausreProInstrument>, response: Response<MeausreProInstrument>) {
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        instrument = it
+                        binding.insName.text = "${instrumentTypeMap[instrument.insType.toString()]} ${instrument.insNum}"
+                        instrTypeForm(instrument.insType.toString())
+                    } ?: showCustomDialog("계측기 정보를 찾을 수 없습니다.", "error")
                 } else {
-                    Log.d("MeausreProLog Ins", response.code().toString())
+                    Log.d("MeausreProLog Ins", "응답 실패: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<MeausreProInstrument>, t: Throwable) {
-                Log.d("MeausreProLog Ins", t.toString())
+                Log.d("MeausreProLog Ins", "API 호출 실패: ${t.message}")
+                showCustomDialog("API 호출에 실패했습니다.", "error")
             }
-
         })
     }
 
