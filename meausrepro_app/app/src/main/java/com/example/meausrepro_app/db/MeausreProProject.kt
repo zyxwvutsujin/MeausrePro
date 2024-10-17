@@ -1,7 +1,7 @@
 package com.example.meausrepro_app.db
 
-import com.example.meausrepro_app.MeausreProSection
-import com.example.meausrepro_app.MeausreProUser
+import com.example.meausrepro_app.db.MeausreProSection
+import com.example.meausrepro_app.db.MeausreProCompany
 
 data class MeausreProProject(var idx:Int?, var sections:List<MeausreProSection>?,
                              var userIdx: MeausreProUser, var companyIdx: MeausreProCompany,
